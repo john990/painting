@@ -16,6 +16,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.painting.component.Brush;
+
 public class MainActivity extends Activity {
 
 	DrawingView dv ;
@@ -48,30 +50,15 @@ public class MainActivity extends Activity {
 		private Path mPath;
 		private Paint   mBitmapPaint;
 		Context context;
-		private Paint circlePaint;
-		private Path circlePath;
-		private Point circlePoint;
+
+		private Brush brush;
 
 		public DrawingView(Context c) {
 			super(c);
 			context=c;
 			mPath = new Path();
 			mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-			circlePaint = new Paint();
-			circlePath = new Path();
-			circlePaint.setAntiAlias(true);
-			circlePaint = new Paint();
-			circlePaint.setColor(Color.BLUE);
-			circlePaint.setStyle(Paint.Style.STROKE);
-			circlePaint.setStrokeJoin(Paint.Join.MITER);
-			circlePaint.setStrokeWidth(1f);
-
-			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-			Display display = wm.getDefaultDisplay();
-			Point size = new Point();
-			display.getSize(size);
-			width = size.x;
-			height = size.y;
+			brush = new Brush(c);
 		}
 
 		@Override
@@ -88,19 +75,17 @@ public class MainActivity extends Activity {
 
 			canvas.drawBitmap( mBitmap, 0, 0, mBitmapPaint);
 
-			canvas.drawPath( mPath,  mPaint);
+			brush.drawPath(canvas,mPaint);
 
-			canvas.drawPath( circlePath,  circlePaint);
-
-			canvas.drawBitmap(BitmapFactory.decodeResource(context.getResources(),R.drawable.point_white), mX-30, mY-30, null);
+			brush.drawCursor(canvas,mX,mY);
 		}
 
 		private float mX, mY;
 		private static final float TOUCH_TOLERANCE = 4;
 
 		private void touch_start(float x, float y) {
-			mPath.reset();
-			mPath.moveTo(x, y);
+			brush.reset();
+			brush.moveTo(x,y);
 			mX = x;
 			mY = y;
 		}
@@ -108,28 +93,23 @@ public class MainActivity extends Activity {
 			float dx = Math.abs(x - mX);
 			float dy = Math.abs(y - mY);
 			if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-				mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+				brush.quadTo(mX, mY, x, y);
 				mX = x;
 				mY = y;
-
-				circlePath.reset();
-//				circlePath.addCircle(mX, mY, 30, Path.Direction.CW);
 			}
 		}
 		private void touch_up() {
-			mPath.lineTo(mX, mY);
-			circlePath.reset();
+			brush.lineTo(mX, mY);
 			// commit the path to our offscreen
-			mCanvas.drawPath(mPath,  mPaint);
+			brush.drawPath(mCanvas,mPaint);
 			// kill this so we don't double draw
-			mPath.reset();
+			brush.reset();
 		}
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
 			float x = event.getX();
 			float y = event.getY();
-//			Log.i("", "x:"+x+",y:"+y);
 			switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 					touch_start(x, y);
