@@ -20,7 +20,7 @@ import com.painting.component.Brush;
 
 public class MainActivity extends Activity {
 
-	DrawingView dv ;
+	DrawingView dv;
 	private Paint mPaint;
 
 	private int COLOR_BLUE_LIGHT = 0xFF00C4D2;
@@ -44,21 +44,20 @@ public class MainActivity extends Activity {
 	public class DrawingView extends View {
 
 		public int width;
-		public  int height;
+		public int height;
 		private Bitmap mBitmap;
 		private Canvas mCanvas;
 		private Path mPath;
-		private Paint   mBitmapPaint;
+		private Paint mBitmapPaint;
 		Context context;
 
 		private Brush brush;
 
 		public DrawingView(Context c) {
 			super(c);
-			context=c;
+			context = c;
 			mPath = new Path();
 			mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-			brush = new Brush(c);
 		}
 
 		@Override
@@ -67,17 +66,18 @@ public class MainActivity extends Activity {
 
 			mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 			mCanvas = new Canvas(mBitmap);
-
+			brush = new Brush(context,mCanvas);
 		}
+
 		@Override
 		protected void onDraw(Canvas canvas) {
 			super.onDraw(canvas);
 
-			canvas.drawBitmap( mBitmap, 0, 0, mBitmapPaint);
+			canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
 
-			brush.drawPath(canvas,mPaint);
+			brush.drawPath(canvas, mPaint);
 
-			brush.drawCursor(canvas,mX,mY);
+			brush.drawCursor(canvas, mX, mY);
 		}
 
 		private float mX, mY;
@@ -85,10 +85,11 @@ public class MainActivity extends Activity {
 
 		private void touch_start(float x, float y) {
 			brush.reset();
-			brush.moveTo(x,y);
+			brush.moveTo(x, y);
 			mX = x;
 			mY = y;
 		}
+
 		private void touch_move(float x, float y) {
 			float dx = Math.abs(x - mX);
 			float dy = Math.abs(y - mY);
@@ -98,10 +99,11 @@ public class MainActivity extends Activity {
 				mY = y;
 			}
 		}
+
 		private void touch_up() {
 			brush.lineTo(mX, mY);
 			// commit the path to our offscreen
-			brush.drawPath(mCanvas,mPaint);
+			brush.drawPath(mCanvas, mPaint);
 			// kill this so we don't double draw
 			brush.reset();
 		}

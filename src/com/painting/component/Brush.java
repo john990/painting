@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -20,13 +21,16 @@ public class Brush {
 	public int width;
 	public int height;
 	private Bitmap pointBitmap;
+	private Bitmap lightingBitmap;
 
 	private Context context;
+	private Canvas canvas;
 
 	private Path pathA, pathB;
 
-	public Brush(Context context) {
+	public Brush(Context context,Canvas canvas) {
 		this.context = context;
+		this.canvas = canvas;
 		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		Point size = new Point();
@@ -35,6 +39,7 @@ public class Brush {
 		height = size.y;
 
 		pointBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.point_white);
+		lightingBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.lighting);
 		pathA = new Path();
 		pathB = new Path();
 	}
@@ -42,6 +47,7 @@ public class Brush {
 	public void quadTo(float prvX, float prvY, float x2, float y2) {
 		pathA.quadTo(prvX, prvY, (prvX + x2) / 2, (prvY + y2) / 2);
 		pathB.quadTo(width - prvX, prvY, (2*width - x2 - prvX)/2, (prvY + y2) / 2);
+		canvas.drawBitmap(pointBitmap, x2, y2, null);
 	}
 
 	public void reset() {
